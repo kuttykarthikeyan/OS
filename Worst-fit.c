@@ -1,102 +1,61 @@
-/**
- * Title		:	Dynamic partitioning placement algorithm (worst fit) 
- * Author		:	Shadab Shaikh
- * Date			:	08-04-2018
- * Version		:	1.0
- * Availability	:	https://github.com/shadabsk
- */
-#include<stdio.h>
+#include <stdio.h>
 
-int temp[100]={};
+void worstFit(int blockSize[], int m, int processSize[], int n) {
+    int allocation[n];
 
-int findApplicable(int totalblk,int blksize[],int totalblkele,int blkelement[],int blkno[],int j) //function of finding eligible fits
-{
-	int i;
-	for(i=0;i<totalblk;i++)
-	{
-		if(blksize[i]>=blkelement[j])
-		{
-			temp[i]=blksize[i];
-		}
-	}	
-	for(i=0;i<totalblk;i++)
-	{
-		if(temp[i]==0||temp[i]!=blksize[i])
-			temp[i]=-1;
-	}
-	return temp[i];
+    for (int i = 0; i < n; i++)
+        allocation[i] = -1;
+
+    for (int i = 0; i < n; i++) {
+        int worstIdx = -1;
+        for (int j = 0; j < m; j++) {
+            if (blockSize[j] >= processSize[i]) {
+                if (worstIdx == -1 || blockSize[j] > blockSize[worstIdx])
+                    worstIdx = j;
+            }
+        }
+
+        if (worstIdx != -1) {
+            allocation[i] = worstIdx;
+            blockSize[worstIdx] -= processSize[i];
+        }
+    }
+
+    printf("\nWorst Fit Allocation:\n");
+    printf("Process No.\tProcess Size\tBlock No.\n");
+    for (int i = 0; i < n; i++) {
+        printf(" %d \t\t %d \t\t", i+1, processSize[i]);
+        if (allocation[i] != -1)
+            printf("%d\n", allocation[i] + 1);
+        else
+            printf("Not Allocated\n");
+    }
 }
 
-int findLargest(int temp[],int totalblk)		//applying bubble sort to find the smallest
-{
-	int i,j=0;
-	for(i=0;i<totalblk;i++)
-	{
-		for(j=i+1;j<totalblk;j++)
-		{
-			if(temp[i]<temp[j])
-			{
-				temp[50]=temp[j];
-				temp[j]=temp[i];
-				temp[i]=temp[50];
-			}
-		}
-		temp[50]=temp[0];
-	}
-	return temp[50];
-	
-}
+int main() {
+    int m, n;
 
-void worstFit(int temp[],int totalblk,int blksize[],int totalblkele,int blkelement[],int blkno[],int i,int j)	//placing the fit and recursively calling until last is reached
-{
-	for(i=0;i<totalblk;i++)
-	{
-		if(temp[50]==blksize[i]&&blksize[i]!=-1)
-		{
-			printf("\n%d\t\t%d\t\t\t%d",blkno[i],blkelement[j],blksize[i]);
-			blksize[i]=-1;
-		}
-	}
-	
-	for(i=0;i<totalblk;i++)
-	{
-		temp[i]=0;
-	}
-	temp[50]=0;
-	j+=1;
-	
-	if(j<totalblkele)
-	{
-		temp[totalblk]=findApplicable(totalblk,blksize,totalblkele,blkelement,blkno,j);
-		findLargest(temp,totalblk);
-		worstFit(temp,totalblk,blksize,totalblkele,blkelement,blkno,0,j);
-	}
-	
-	
-	
-}
+    printf("Enter the number of memory blocks: ");
+    scanf("%d", &m);
 
-int main()
-{
-	int i,j,totalblk,blksize[10],totalblkele,blkelement[10]={},blkno[10];
-	printf("Enter the total number of block\n");
-	scanf("%d",&totalblk);
-	printf("Enter the block sizes\n");
-	for(i=0;i<totalblk;i++)
-	{
-		blkno[i]=i+1;
-		scanf("%d",&blksize[i]);
-	}
-	printf("Enter the total processes\n");
-	scanf("%d",&totalblkele);
-	printf("Enter the process elements\n");
-	for(j=0;j<totalblkele;j++)
-		scanf("%d",&blkelement[j]);
-	
-	printf("\nblock number\tprocess elements\tblock size");
-	temp[totalblk]=findApplicable(totalblk,blksize,totalblkele,blkelement,blkno,0);
-	findLargest(temp,totalblk);
-	worstFit(temp,totalblk,blksize,totalblkele,blkelement,blkno,0,0);
-		
-	return 0;
+    int blockSize[m];
+    printf("Enter the size of each memory block:\n");
+    for (int i = 0; i < m; i++) {
+        printf("Block %d: ", i+1);
+        scanf("%d", &blockSize[i]);
+    }
+
+    printf("\nEnter the number of processes: ");
+    scanf("%d", &n);
+
+    int processSize[n];
+    printf("Enter the size of each process:\n");
+    for (int i = 0; i < n; i++) {
+        printf("Process %d: ", i+1);
+        scanf("%d", &processSize[i]);
+    }
+
+    worstFit(blockSize, m, processSize, n);
+
+    return 0;
 }
